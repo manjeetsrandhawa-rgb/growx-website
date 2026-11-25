@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GrowX Automations — Live Performance Feed</title>
+  <title>GrowX Automations — Aviator Live Performance</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -14,50 +14,74 @@
   </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-6xl mx-auto space-y-6">
+
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-4">
       <div>
-        <h1 class="text-2xl font-bold tracking-wide gold">GROWX AUTOMATIONS</h1>
-        <p class="text-sm text-slate-400 flex items-center gap-2 mt-1">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <h1 class="text-2xl font-bold tracking-wide gold">GROWX AUTOMATIONS</h1>
+          <span class="px-3 py-0.5 text-xs font-bold tracking-wider uppercase rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/40">
+            ✈️ AVIATOR ENGINE
+          </span>
+        </div>
+        <p class="text-sm text-slate-300 font-medium mt-1">
+          DGClub Aviator — Live Algorithmic Performance Dashboard
+        </p>
+        <p class="text-xs text-slate-400 flex flex-wrap items-center gap-2 mt-1">
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>Live Market Execution Feed</span>
-          <span id="lastUpdated" class="text-xs text-slate-500 ml-2">Syncing...</span>
+          <span id="lastUpdated" class="text-xs text-slate-500 ml-1">Syncing...</span>
         </p>
       </div>
 
       <!-- Mode Filter Buttons -->
-      <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
+      <div class="inline-flex self-start md:self-auto rounded-lg bg-slate-900 p-1 border border-slate-800">
         <button onclick="setMode('ALL')" id="btn-ALL" class="px-4 py-1.5 text-xs font-semibold rounded-md bg-amber-500 text-black">ALL</button>
         <button onclick="setMode('LIVE')" id="btn-LIVE" class="px-4 py-1.5 text-xs font-semibold rounded-md text-slate-300 hover:text-white">LIVE</button>
         <button onclick="setMode('DEMO')" id="btn-DEMO" class="px-4 py-1.5 text-xs font-semibold rounded-md text-slate-300 hover:text-white">DEMO</button>
       </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <!-- Summary Cards (Initial Capital + Current Balance + Net P&L + Win Rate + Turnover) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div class="card rounded-xl p-4">
+        <p class="text-xs text-slate-400">Initial Capital</p>
+        <p id="statInitCap" class="text-xl font-bold mt-1 text-slate-200">₹0.00</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">Starting Equity</p>
+      </div>
+
+      <div class="card rounded-xl p-4">
+        <p class="text-xs text-slate-400">Current Balance</p>
+        <p id="statBal" class="text-xl font-bold mt-1 gold">₹0.00</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">Live Wallet / Tracked</p>
+      </div>
+
       <div class="card rounded-xl p-4">
         <p class="text-xs text-slate-400">Net P&amp;L</p>
         <p id="statPnl" class="text-xl font-bold mt-1 text-emerald-400">₹0.00</p>
+        <p id="statRoi" class="text-[11px] text-slate-500 mt-0.5">0.0% Return</p>
       </div>
+
       <div class="card rounded-xl p-4">
         <p class="text-xs text-slate-400">Win Rate</p>
         <p id="statWinRate" class="text-xl font-bold mt-1 cyan">0.0%</p>
-        <p id="statWL" class="text-xs text-slate-500 mt-0.5">0W / 0L</p>
+        <p id="statWL" class="text-[11px] text-slate-500 mt-0.5">0W / 0L</p>
       </div>
-      <div class="card rounded-xl p-4">
+
+      <div class="card rounded-xl p-4 col-span-2 sm:col-span-1">
         <p class="text-xs text-slate-400">Total Turnover</p>
         <p id="statTurnover" class="text-xl font-bold mt-1 text-white">₹0</p>
-      </div>
-      <div class="card rounded-xl p-4">
-        <p class="text-xs text-slate-400">Latest Balance</p>
-        <p id="statBal" class="text-xl font-bold mt-1 gold">₹0.00</p>
+        <p id="statTradesCount" class="text-[11px] text-slate-500 mt-0.5">0 Executed Bets</p>
       </div>
     </div>
 
     <!-- Live Equity Curve -->
     <div class="card rounded-xl p-4">
-      <h2 class="text-sm font-semibold text-slate-300 mb-3">Live Cumulative P&amp;L Curve (₹)</h2>
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-sm font-semibold text-slate-300">Aviator Cumulative P&amp;L Curve (₹)</h2>
+        <span id="modeBadge" class="text-[11px] px-2.5 py-0.5 rounded bg-slate-800 text-amber-300 font-semibold">MODE: ALL</span>
+      </div>
       <div class="h-56">
         <canvas id="pnlChart"></canvas>
       </div>
@@ -66,7 +90,7 @@
     <!-- Recent Trades Table -->
     <div class="card rounded-xl overflow-hidden">
       <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-        <h2 class="text-sm font-semibold text-slate-300">Recent Verified Trades</h2>
+        <h2 class="text-sm font-semibold text-slate-300">Recent Verified Aviator Trades</h2>
         <span class="text-xs text-slate-500">Auto-refreshes every 15s</span>
       </div>
       <div class="overflow-x-auto">
@@ -80,24 +104,31 @@
               <th class="px-4 py-3">Crash</th>
               <th class="px-4 py-3">Result</th>
               <th class="px-4 py-3 text-right">Net P&amp;L</th>
+              <th class="px-4 py-3 text-right">Balance</th>
             </tr>
           </thead>
           <tbody id="tradesBody" class="divide-y divide-slate-800/70">
-            <tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">Loading live data...</td></tr>
+            <tr><td colspan="8" class="px-4 py-6 text-center text-slate-500">Loading live Aviator data...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
+
   </div>
 
   <script>
     // APNA GOOGLE APPS SCRIPT /exec URL YAHAN PASTE KAREIN
-    const API_URL = "https://script.google.com/macros/s/AKfycbx5QEI1E9bnmhxzwXyDfSqnV5ikNUzRDrRmQG0zBzU5_PODrpvZU4lKu2I_xAm6_g/exec";
+    const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL";
     let currentMode = "ALL";
     let chartInstance = null;
 
+    function formatINR(val) {
+      return Number(val || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function setMode(mode) {
       currentMode = mode;
+      document.getElementById("modeBadge").textContent = "MODE: " + mode;
       ["ALL", "LIVE", "DEMO"].forEach(m => {
         const btn = document.getElementById("btn-" + m);
         btn.className = (m === mode)
@@ -116,14 +147,25 @@
         document.getElementById("lastUpdated").textContent = "Updated: " + data.updated_ist;
         const s = data.summary;
 
+        const initCap = (s.initial_capital !== undefined && s.initial_capital !== null)
+          ? Number(s.initial_capital)
+          : Number((Number(s.balance || 0) - Number(s.net_pnl || 0)).toFixed(2));
+
+        document.getElementById("statInitCap").textContent = "₹" + formatINR(initCap);
+        document.getElementById("statBal").textContent = "₹" + formatINR(s.balance);
+
+        const pnlVal = Number(s.net_pnl || 0);
         const pnlEl = document.getElementById("statPnl");
-        pnlEl.textContent = (s.net_pnl >= 0 ? "+₹" : "-₹") + Math.abs(s.net_pnl).toLocaleString("en-IN");
-        pnlEl.className = "text-xl font-bold mt-1 " + (s.net_pnl >= 0 ? "text-emerald-400" : "text-rose-400");
+        pnlEl.textContent = (pnlVal >= 0 ? "+₹" : "-₹") + formatINR(Math.abs(pnlVal));
+        pnlEl.className = "text-xl font-bold mt-1 " + (pnlVal >= 0 ? "text-emerald-400" : "text-rose-400");
+
+        const roiPct = initCap > 0 ? ((pnlVal / initCap) * 100).toFixed(1) : "0.0";
+        document.getElementById("statRoi").textContent = (pnlVal >= 0 ? "+" : "") + roiPct + "% on Initial Cap";
 
         document.getElementById("statWinRate").textContent = s.win_rate + "%";
-        document.getElementById("statWL").textContent = `${s.wins}W / ${s.losses}L (${s.total_trades} Trades)`;
-        document.getElementById("statTurnover").textContent = "₹" + s.turnover.toLocaleString("en-IN");
-        document.getElementById("statBal").textContent = "₹" + s.balance.toLocaleString("en-IN");
+        document.getElementById("statWL").textContent = `${s.wins}W / ${s.losses}L`;
+        document.getElementById("statTurnover").textContent = "₹" + Number(s.turnover || 0).toLocaleString("en-IN");
+        document.getElementById("statTradesCount").textContent = `${s.total_trades} Executed Bets`;
 
         // Update Chart
         const labels = data.equity_curve.map(p => p.time.split(" ")[1] || p.time);
@@ -160,18 +202,19 @@
         // Update Table
         const tbody = document.getElementById("tradesBody");
         if (data.recent_trades.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">No trades found for ${currentMode} mode.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-slate-500">No Aviator trades found for ${currentMode} mode.</td></tr>`;
           return;
         }
         tbody.innerHTML = data.recent_trades.map(t => `
           <tr class="hover:bg-slate-800/40">
-            <td class="px-4 py-2.5 text-slate-300">${t.time}</td>
+            <td class="px-4 py-2.5 text-slate-300 whitespace-nowrap">${t.time}</td>
             <td class="px-4 py-2.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.mode === 'LIVE' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}">${t.mode}</span></td>
             <td class="px-4 py-2.5 text-slate-200">₹${t.stake}</td>
             <td class="px-4 py-2.5 text-amber-300">${t.target}</td>
             <td class="px-4 py-2.5 text-slate-200">${t.crash}</td>
             <td class="px-4 py-2.5 font-bold ${t.result === 'WIN' ? 'text-emerald-400' : 'text-rose-400'}">${t.result}</td>
-            <td class="px-4 py-2.5 text-right font-semibold ${t.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${t.pnl >= 0 ? '+₹' : '-₹'}${Math.abs(t.pnl)}</td>
+            <td class="px-4 py-2.5 text-right font-semibold ${t.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${t.pnl >= 0 ? '+₹' : '-₹'}${Math.abs(t.pnl).toFixed(2)}</td>
+            <td class="px-4 py-2.5 text-right text-slate-200 font-medium">₹${formatINR(t.bal)}</td>
           </tr>
         `).join("");
       } catch (e) {

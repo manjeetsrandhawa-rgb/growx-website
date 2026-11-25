@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <!-- Summary Cards (Initial Capital + Current Balance + Net P&L + Win Rate + Turnover) -->
+    <!-- Summary Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
       <div class="card rounded-xl p-4">
         <p class="text-xs text-slate-400">Initial Capital</p>
@@ -54,11 +54,11 @@
       <div class="card rounded-xl p-4">
         <p class="text-xs text-slate-400">Current Balance</p>
         <p id="statBal" class="text-xl font-bold mt-1 gold">₹0.00</p>
-        <p class="text-[11px] text-slate-500 mt-0.5">Live Wallet / Tracked</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">Latest Balance</p>
       </div>
 
       <div class="card rounded-xl p-4">
-        <p class="text-xs text-slate-400">Net P&amp;L</p>
+        <p class="text-xs text-slate-400">Net P&amp;L (Bal − Init)</p>
         <p id="statPnl" class="text-xl font-bold mt-1 text-emerald-400">₹0.00</p>
         <p id="statRoi" class="text-[11px] text-slate-500 mt-0.5">0.0% Return</p>
       </div>
@@ -103,7 +103,7 @@
               <th class="px-4 py-3">Target</th>
               <th class="px-4 py-3">Crash</th>
               <th class="px-4 py-3">Result</th>
-              <th class="px-4 py-3 text-right">Net P&amp;L</th>
+              <th class="px-4 py-3 text-right">Round P&amp;L</th>
               <th class="px-4 py-3 text-right">Balance</th>
             </tr>
           </thead>
@@ -146,14 +146,14 @@
         document.getElementById("lastUpdated").textContent = "Updated: " + data.updated_ist;
         const s = data.summary;
 
-        const initCap = (s.initial_capital !== undefined && s.initial_capital !== null)
-          ? Number(s.initial_capital)
-          : Number((Number(s.balance || 0) - Number(s.net_pnl || 0)).toFixed(2));
+        const initCap = Number(s.initial_capital || 0);
+        const currentBal = Number(s.balance || 0);
+        // Exact Net P&L = Current Balance - Initial Capital
+        const pnlVal = Number((currentBal - initCap).toFixed(2));
 
         document.getElementById("statInitCap").textContent = "₹" + formatINR(initCap);
-        document.getElementById("statBal").textContent = "₹" + formatINR(s.balance);
+        document.getElementById("statBal").textContent = "₹" + formatINR(currentBal);
 
-        const pnlVal = Number(s.net_pnl || 0);
         const pnlEl = document.getElementById("statPnl");
         pnlEl.textContent = (pnlVal >= 0 ? "+₹" : "-₹") + formatINR(Math.abs(pnlVal));
         pnlEl.className = "text-xl font-bold mt-1 " + (pnlVal >= 0 ? "text-emerald-400" : "text-rose-400");

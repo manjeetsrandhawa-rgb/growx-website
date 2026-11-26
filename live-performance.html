@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -48,7 +48,7 @@
       <div class="card rounded-xl p-4">
         <p class="text-xs text-slate-400">Initial Capital</p>
         <p id="statInitCap" class="text-xl font-bold mt-1 text-slate-200">₹0.00</p>
-        <p class="text-[11px] text-slate-500 mt-0.5">Starting Equity</p>
+        <p id="statInitDate" class="text-[11px] text-amber-300/90 mt-0.5">Starting Equity</p>
       </div>
 
       <div class="card rounded-xl p-4">
@@ -152,6 +152,9 @@
         const pnlVal = Number((currentBal - initCap).toFixed(2));
 
         document.getElementById("statInitCap").textContent = "₹" + formatINR(initCap);
+        document.getElementById("statInitDate").textContent = s.initial_start_date
+          ? ("Since " + s.initial_start_date)
+          : "Starting Equity";
         document.getElementById("statBal").textContent = "₹" + formatINR(currentBal);
 
         const pnlEl = document.getElementById("statPnl");
